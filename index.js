@@ -9,7 +9,7 @@ var fs = require('fs');
 // ===============
 var app = express();
 console.log(app.settings.env);
-var port = (app.settings.env == 'development' ? 3000 : 18972);
+var port = (process.env.HOSTNAME == 'web506.webfaction.com' ? 18972 : 3000);
 
 // ==========
 // Middleware
