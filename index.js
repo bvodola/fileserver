@@ -8,6 +8,7 @@ var fs = require('fs');
 // App Definitions
 // ===============
 var app = express();
+console.log(app.settings.env);
 var port = (app.settings.env == 'development' ? 3000 : 18972);
 
 // ==========
