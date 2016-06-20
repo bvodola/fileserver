@@ -23,7 +23,7 @@ app.get('/', function(req, res) {
 	res.sendFile(__dirname+'/public/index.html');
 });
 
-app.post('/upload?*', multer({ dest: __dirname + '/uploads/' }).any(), function(req, res) {
+app.post('/upload*', multer({ dest: __dirname + '/uploads/' }).any(), function(req, res) {
 
 	// Sets the routeParams object
 	// Example: upload/width/100/height/100
