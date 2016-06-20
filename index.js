@@ -8,7 +8,6 @@ var fs = require('fs');
 // App Definitions
 // ===============
 var app = express();
-console.log(app.settings.env);
 var port = (process.env.HOSTNAME == 'web506.webfaction.com' ? 18972 : 3000);
 
 // ==========
@@ -24,7 +23,12 @@ app.get('/', function(req, res) {
 });
 
 app.post('/', multer({ dest: __dirname + '/uploads/' }).any(), function(req, res) {
-	res.status(204).end();
+	var fileIds = [];
+	for(var i=0 ; i < req.files.length ; i++) {
+		fileIds.push(req.files[i].filename);
+	}
+	console.log(req.files[0].filename);
+	res.send(fileIds);
 });
 
 app.get('/image/:id', function (req, res) {
