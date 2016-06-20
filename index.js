@@ -4,10 +4,11 @@ var morgan = require('morgan');
 var multer = require('multer');
 var fs = require('fs');
 
-// ==============
-// App Definition
-// ==============
+// ===============
+// App Definitions
+// ===============
 var app = express();
+var port = (app.settings.env == 'development' ? 3000 : 18972);
 
 // ==========
 // Middleware
@@ -35,6 +36,6 @@ app.get('/image/:id', function (req, res) {
 // ===============
 // Starting Server
 // ===============
-app.listen(process.env.PORT || 3000, function () {
-  console.log('App listening on port '+process.env.PORT);
+app.listen(port, function () {
+  console.log('App listening on port '+port);
 });
