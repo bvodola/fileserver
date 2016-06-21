@@ -19,13 +19,17 @@ var port = (process.env.HOSTNAME == 'web506.webfaction.com' ? 18972 : 3000);
 //========
 // Routing
 //========
+
 app.get('/', function(req, res) {
 	res.sendFile(__dirname+'/public/index.html');
 });
 
 app.post('/upload*', multer({ dest: __dirname + '/uploads/' }).any(), function(req, res) {
 
+	// ===========================
 	// Sets the routeParams object
+	// ===========================
+
 	// Example: upload/width/100/height/100
 	// Will generate the following routeParams object:
 	// { width: 100, height: 100 }
@@ -36,20 +40,34 @@ app.post('/upload*', multer({ dest: __dirname + '/uploads/' }).any(), function(r
 		routeParams[rawParams[i]] = rawParams[i+1];
 	}
 
-	// Array that contains the IDs of the uploaded files
-	var fileIds = [];
+	// ==============
+	// fileURLs Array
+	// ==============
 
-	// Populating the fileIds array with the generated IDs
+	// Array that contains the URLs of the uploaded files
+	var fileURLs = [];
+
+	// Populating the fileURLs array with the generated URLs
 	for(var i=0 ; i < req.files.length ; i++) {
-		fileIds.push(req.files[i].filename);
+		fileURLs.push(req.protocol + '://' + req.get('host')+'/image/'+req.files[i].filename);
 	}
 
-	// Manipulating the Image
-	jimp.read(__dirname+"/uploads/"+req.files[0].filename, function (err, img) {
+	// ==================
+	// Image Manipulation
+	// ==================
+
+	// Edits the image according to the parameters present in
+	// the routeParams object. Currently, only the first file
+	// is edited.
+	var fileID = fileURLs[0].split('/').splice(-1);
+
+	jimp.read(__dirname+"/uploads/"+fileID, function (err, img) {
 		// Validate that req.params.id is 16 bytes hex string
 		// Get the stored image type for this image
 		// res.setHeader('Content-Type', storedMimeType);
-		if (err) throw err;
+		if (err) {
+			throw err;
+		}
 
 		// Image resizing rules
 		if(routeParams.width || routeParams.height) {
@@ -70,17 +88,19 @@ app.post('/upload*', multer({ dest: __dirname + '/uploads/' }).any(), function(r
 
 		// Writes the image
 		img
-			.write(__dirname+"/uploads/"+req.files[0].filename+".jpg", function(err) {
+			.write(__dirname+"/uploads/"+fileID+".jpg", function(err) {
 				if(err) throw err;
-				fs.rename(__dirname+"/uploads/"+req.files[0].filename+".jpg",__dirname+"/uploads/"+req.files[0].filename, function(err2) {
-					if(err2) cnosole.log(err2);
-				})
+				fs.rename(__dirname+"/uploads/"+fileID+".jpg",__dirname+"/uploads/"+fileID, function(err2) {
+					if(err2)
+						console.log(err2);
+				});
 			});
 	});
 
-
-	// Sends the fileIds array as response
-	res.send(fileIds);
+	// ====================================
+	// Sends the fileURLs array as response
+	// ====================================
+	res.send(fileURLs);
 });
 
 app.get('/image/:id', function (req, res) {
