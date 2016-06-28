@@ -93,20 +93,20 @@ app.post('/upload*', multer({ dest: __dirname + '/uploads/' }).any(), function(r
 		}
 
 		// Writes the image
-		img
-			.write(__dirname+"/uploads/"+fileID+".jpg", function(err) {
-				if(err) throw err;
-				fs.rename(__dirname+"/uploads/"+fileID+".jpg",__dirname+"/uploads/"+fileID, function(err2) {
-					if(err2)
-						console.log(err2);
-				});
+		img.write(__dirname+"/uploads/"+fileID+".jpg", function(err) {
+			if(err) throw err;
+			fs.rename(__dirname+"/uploads/"+fileID+".jpg",__dirname+"/uploads/"+fileID, function(err2) {
+				if(err2)
+					console.log(err2);
+				res.send(fileURLs);
 			});
+		});
 	});
 
 	// ====================================
 	// Sends the fileURLs array as response
 	// ====================================
-	res.send(fileURLs);
+	
 });
 
 app.get('/image/:id', function (req, res) {
