@@ -14,7 +14,13 @@ var port = (process.env.HOSTNAME == 'web506.webfaction.com' ? 18972 : 3000);
 // ==========
 // Middleware
 // ==========
-// app.use(morgan('combined'));
+
+app.use(function(req, res, next) {
+	res.header("Access-Control-Allow-Origin", "*");
+	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+	next();
+});
+
 
 //========
 // Routing
@@ -109,12 +115,12 @@ app.get('/image/:id', function (req, res) {
 
 
 	fs.exists(filePath, function(exists) {
-	  if (exists) {
-	    fs.createReadStream(filePath).pipe(res);
-	  } else {
-	    res.status(404).send("File Not Found (Error 404)");
+		if (exists) {
+			fs.createReadStream(filePath).pipe(res);
+		} else {
+			res.status(404).send("File Not Found (Error 404)");
 
-	  }
+		}
 	});	
 });
 
