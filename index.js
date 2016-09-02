@@ -9,7 +9,7 @@ var fs = require('fs');
 // App Definitions
 // ===============
 var app = express();
-var port = (process.env.HOSTNAME == 'web506.webfaction.com' ? 18972 : 3000);
+var port = (process.env.HOSTNAME == 'web506.webfaction.com' ? 18972 : 4000);
 
 // ==========
 // Middleware
@@ -109,6 +109,7 @@ app.post('/upload*', multer({ dest: __dirname + '/uploads/' }).any(), function(r
 	
 });
 
+
 app.get('/image/:id', function (req, res) {
 
 	var filePath = __dirname+"/uploads/"+req.params.id;
@@ -119,10 +120,26 @@ app.get('/image/:id', function (req, res) {
 			fs.createReadStream(filePath).pipe(res);
 		} else {
 			res.status(404).send("File Not Found (Error 404)");
-
 		}
 	});	
 });
+
+app.delete('/image/:id', function (req, res) {
+
+	var filePath = __dirname+"/uploads/"+req.params.id;
+
+
+	fs.exists(filePath, function(exists) {
+		if (exists) {
+			fs.unlink(filePath, function(e) {
+				res.status(204).send("File deleted (Status 204)");
+			});
+		} else {
+			res.status(404).send("File Not Found (Error 404)");
+		}
+	});	
+});
+
 
 // ===============
 // Starting Server
