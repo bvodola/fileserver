@@ -2,6 +2,8 @@
 var express = require('express');
 var morgan = require('morgan');
 var multer = require('multer');
+var crypto = require('crypto');
+var mime = require('mime');
 var jimp = require('jimp');
 var fs = require('fs');
 
@@ -22,6 +24,20 @@ app.use(function(req, res, next) {
 	next();
 });
 
+// ==================
+// Multer Definitions
+// ==================
+
+var storage = multer.diskStorage({
+	destination: function (req, file, cb) {
+		cb(null, __dirname+'/uploads/')
+	},
+	filename: function (req, file, cb) {
+		crypto.pseudoRandomBytes(16, function (err, raw) {
+			cb(null, raw.toString('hex') + Date.now() + '.' + mime.extension(file.mimetype));
+		});
+	}
+});
 
 //========
 // Routing
@@ -31,7 +47,7 @@ app.get('/', function(req, res) {
 	res.sendFile(__dirname+'/public/index.html');
 });
 
-app.post('/upload*', multer({ dest: __dirname + '/uploads/' }).any(), function(req, res) {
+app.post('/upload*', multer({ storage: storage }).any(), function(req, res) {
 
 	// ===========================
 	// Sets the routeParams object
@@ -63,51 +79,97 @@ app.post('/upload*', multer({ dest: __dirname + '/uploads/' }).any(), function(r
 	// Image Manipulation
 	// ==================
 
-	// Edits the image according to the parameters present in
+	// Edits the image accordingly to the parameters present in
 	// the routeParams object. Currently, only the first file
 	// is edited.
-	var fileID = fileURLs[0].split('/').splice(-1);
 
-	jimp.read(__dirname+"/uploads/"+fileID, function (err, img) {
-		// Validate that req.params.id is 16 bytes hex string
-		// Get the stored image type for this image
-		// res.setHeader('Content-Type', storedMimeType);
-		if (err) {
-			throw err;
-		}
+	// To Do:
+	// - Check if the file is an image before trying to edit it
 
-		// Image resizing rules
-		if(routeParams.width || routeParams.height) {
-			if(routeParams.width && routeParams.height) {
-				img.resize(Math.round(routeParams.width), Math.round(routeParams.height));
-			} else if(routeParams.width){
-				img.resize(Math.round(routeParams.width), jimp.AUTO);
-			} else if(routeParams.height) {
-				img.resize(jimp.AUTO, Math.round(routeParams.height));
+	fileURLs.forEach(function(fileURL, i, fileURLs) {
+
+		// Gets the fileID  from the URL
+		var fileID = fileURL.split('/').splice(-1)[0];
+
+		jimp.read(__dirname+"/uploads/"+fileID, function (err, img) {
+			// To Do:
+			// - Validate that req.params.id is 16 bytes hex string
+			// - res.setHeader('Content-Type', storedMimeType);
+			if (err) {
+				console.log(err);
+
+				// If the File is not an image, but we are in the last iteraction
+				// we must then send the Files URLs to the http response
+				if (i == fileURLs.length-1) {
+					res.send(fileURLs);
+				}
 			}
-		}
+			
 
-		// Sets the Image quality
-		if(routeParams.quality || routeParams.q) {
-			var quality = Math.round((routeParams.quality ? routeParams.quality : routeParams.q));
-			img.quality(quality);
-		}
+			else if(img.getMIME().split('/').splice(0,1) == 'image') {
+				// Defining the image manipulation parameters variables
+				var q, h, w;
 
-		// Writes the image
-		img.write(__dirname+"/uploads/"+fileID+".jpg", function(err) {
-			if(err) throw err;
-			fs.rename(__dirname+"/uploads/"+fileID+".jpg",__dirname+"/uploads/"+fileID, function(err2) {
-				if(err2)
-					console.log(err2);
-				res.send(fileURLs);
-			});
+				// Calculating image resizing parameters
+				if(routeParams.width || routeParams.height) {
+					if(routeParams.width && routeParams.height) {
+						w = routeParams.width;
+						h = routeParams.height;
+					} else if(routeParams.width){
+						w = routeParams.width;
+						h = jimp.AUTO;
+					} else if(routeParams.height) {
+						w = jimp.AUTO;
+						h = routeParams.height;
+					}
+
+					w = Math.round(w);
+					h = Math.round(h);
+				} else {
+					w = img.bitmap.width;
+					h = img.bitmap.height;
+				}
+
+				// Setting the image quality parameter
+				if(routeParams.quality || routeParams.q) {
+					q = Math.round((routeParams.quality ? routeParams.quality : routeParams.q));
+				} else {
+					q = 70;
+				}
+				
+				
+				// ==============================
+				// Image manipulating and writing
+				// ==============================
+				console.log(img.bitmap.height);
+				img.resize(w, h, function(err, img) {
+					if(err) throw err;
+					console.log('w,h', i);
+					img.quality(q, function(err, img) {
+
+						// Writes the image
+						// To Do:
+						// - Currently, all images are saved as .jpg. They should
+						// be saved accordingly to the image type
+						img.write(__dirname+"/uploads/"+fileID, function(err) {
+							if(err) throw err;
+							// fs.rename(__dirname+"/uploads/"+fileID+".jpg",__dirname+"/uploads/"+fileID, function(err) {
+							// 	if(err)
+							// 		console.log(err);
+
+								
+							// });
+							// Sends the fileURLs array as response
+							if(i == fileURLs.length-1) {
+								res.send(fileURLs);
+							}	
+						});
+					});
+				});
+			}
+
 		});
 	});
-
-	// ====================================
-	// Sends the fileURLs array as response
-	// ====================================
-	
 });
 
 
