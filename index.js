@@ -105,7 +105,6 @@ app.post('/upload*', multer({ storage: storage }).any(), function(req, res) {
 				}
 			}
 			
-
 			else if(img.getMIME().split('/').splice(0,1) == 'image') {
 				// Defining the image manipulation parameters variables
 				var q, h, w;
@@ -153,12 +152,7 @@ app.post('/upload*', multer({ storage: storage }).any(), function(req, res) {
 						// be saved accordingly to the image type
 						img.write(__dirname+"/uploads/"+fileID, function(err) {
 							if(err) throw err;
-							// fs.rename(__dirname+"/uploads/"+fileID+".jpg",__dirname+"/uploads/"+fileID, function(err) {
-							// 	if(err)
-							// 		console.log(err);
 
-								
-							// });
 							// Sends the fileURLs array as response
 							if(i == fileURLs.length-1) {
 								res.send(fileURLs);
