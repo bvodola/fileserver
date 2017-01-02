@@ -11,7 +11,7 @@ var fs = require('fs');
 // App Definitions
 // ===============
 var app = express();
-var port = (process.env.HOSTNAME == 'web506.webfaction.com' ? 18972 : 4000);
+var port = (process.env.HOSTNAME == 'web540.webfaction.com' ? 18972 : 4000);
 
 // ==========
 // Middleware
@@ -104,7 +104,7 @@ app.post('/upload*', multer({ storage: storage }).any(), function(req, res) {
 					res.send(fileURLs);
 				}
 			}
-			
+
 			else if(img.getMIME().split('/').splice(0,1) == 'image') {
 				// Defining the image manipulation parameters variables
 				var q, h, w;
@@ -135,8 +135,8 @@ app.post('/upload*', multer({ storage: storage }).any(), function(req, res) {
 				} else {
 					q = 70;
 				}
-				
-				
+
+
 				// ==============================
 				// Image manipulating and writing
 				// ==============================
@@ -156,7 +156,7 @@ app.post('/upload*', multer({ storage: storage }).any(), function(req, res) {
 							// Sends the fileURLs array as response
 							if(i == fileURLs.length-1) {
 								res.send(fileURLs);
-							}	
+							}
 						});
 					});
 				});
@@ -178,7 +178,7 @@ app.get('/image/:id', function (req, res) {
 		} else {
 			res.status(404).send("File Not Found (Error 404)");
 		}
-	});	
+	});
 });
 
 app.delete('/image/:id', function (req, res) {
@@ -194,7 +194,7 @@ app.delete('/image/:id', function (req, res) {
 		} else {
 			res.status(404).send("File Not Found (Error 404)");
 		}
-	});	
+	});
 });
 
 
