@@ -11,7 +11,7 @@ var fs = require('fs');
 // App Definitions
 // ===============
 var app = express();
-var port = (process.env.HOSTNAME == 'web540.webfaction.com' ? 18972 : 4000);
+var port = (process.env.HOSTNAME == 'wf-207-38-92-253.webfaction.com' ? 11339 : 4000);
 
 // ==========
 // Middleware
