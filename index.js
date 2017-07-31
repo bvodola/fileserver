@@ -1,11 +1,6 @@
 // Imports
 var express = require('express');
 var morgan = require('morgan');
-var multer = require('multer');
-var crypto = require('crypto');
-var mime = require('mime');
-var jimp = require('jimp');
-var fs = require('fs');
 
 // ===============
 // App Definitions
@@ -196,7 +191,6 @@ app.delete('/image/:id', function (req, res) {
 		}
 	});
 });
-
 
 // ===============
 // Starting Server
