@@ -1,12 +1,18 @@
 // Imports
 var express = require('express');
 var morgan = require('morgan');
+var multer = require('multer');
+var crypto = require('crypto');
+var bodyParser = require('body-parser');
+var mime = require('mime');
+var jimp = require('jimp');
+var fs = require('fs');
 
 // ===============
 // App Definitions
 // ===============
 var app = express();
-var port = (process.env.HOSTNAME == 'wf-207-38-92-253.webfaction.com' ? 11339 : 4000);
+var port = process.env.PORT || 5000;
 
 // ==========
 // Middleware
@@ -150,6 +156,7 @@ app.post('/upload*', multer({ storage: storage }).any(), function(req, res) {
 
 							// Sends the fileURLs array as response
 							if(i == fileURLs.length-1) {
+								console.log(fileURLs);
 								res.send(fileURLs);
 							}
 						});
